@@ -1,0 +1,13 @@
+server:
+  port: 8383
+  
+## LDAP连接配置
+#spring:
+#  ldap:
+#    urls: ldaps://172.28.15.109:636/
+#    base: DC=YFCO,DC=YANFENGCO,DC=COM
+#    username: Monitoring Service
+#    password: CAvbphNFFoAvNjKMPY1N
+    
+    
+
