@@ -8,14 +8,18 @@
  */
 package com.maple.controller;
 
+import static org.springframework.ldap.query.LdapQueryBuilder.query;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.query.LdapQuery;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.maple.mapper.PersonAttributesMapper;
 import com.maple.model.Person;
 import com.maple.service.impl.PersonRepoImpl;
 
@@ -52,7 +56,19 @@ public class LdapTestController {
 		personRepo.getAllPersons().forEach(p -> System.out.println(p.toString()));
 	}
 
-	// 根据dn查询
+	/**
+	 * 
+	 * @Description:根据dn查询
+	 *  DN --> CN=test,OU=developer,DC=domainname,DC=com
+	 *  DN：uid=songtao.xu,ou=oa组,dc=example,dc=com”，一条记录的位置（唯一）
+	 *  其中 DC: 域名的部分
+	 *  OU: 组织单位
+	 *  CN: 公共名称，如“Thomas Johansson”（一条记录的名称），如姓名
+	 *  
+	 * @auth：uwank171 
+	 * @date: 2020年11月5日 下午1:16:29           
+	 *
+	 */
 	@GetMapping("/findPersonWithDn")
 	public void findPersonWithDn() {
 		System.out.println("\n ===根据dn查询findPersonWithDn:");
@@ -77,6 +93,69 @@ public class LdapTestController {
 		List<Person> list = personRepo.getBySAMAccountName(sAMAccountName);
 		return list.size() > 0 ? list.get(0).toString() : "无结果数据！";
 	}
+	
+	
+	
+	
+	
+	/**
+	 * 
+	 * @Description:根据dn查询--测试it.monitoring-automation.yf.gl
+	 *  DN --> CN=test,OU=developer,DC=domainname,DC=com
+	 *  DN：uid=songtao.xu,ou=oa组,dc=example,dc=com”，一条记录的位置（唯一）
+	 *  其中 DC: 域名的部分
+	 *  OU: 组织单位
+	 *  CN: 公共名称，如“Thomas Johansson”（一条记录的名称），如姓名
+	 *  
+	 * @auth：uwank171 
+	 * @date: 2020年11月5日 下午1:16:29           
+	 *
+	 */
+	@GetMapping("/findPersonAdminGroup")
+	public String findPersonAdminGroup() {
+		System.out.println("\n ===根据AD组查询findPersonAdminGroup:");
+		LdapQuery query = query()
+				.attributes("sAMAccountName", "sn","cn","mobile","mail")
+				.where("objectclass").is("person")
+//				.and("memberOf").like("CN=it.monitoring-automation.yf.gl")
+				.and("sAMAccountName").like("*uwank*")
+				;
+		List<Person> list = ldapTemplate.search(query, new PersonAttributesMapper());
+		list.forEach(p -> System.out.println(p.toString()));
+		return list.size()+"";
+		
+	}
+	@GetMapping("/findPersonAdminGroup2")
+	public String findPersonAdminGroup2() {
+		System.out.println("\n ===根据AD组查询findPersonAdminGroup:");
+		LdapQuery query = query()
+				.attributes("sAMAccountName", "sn","cn","mobile","mail")
+				.where("objectclass").is("person")
+				.and("memberOf").is("CN=it.monitoring-automation.yf.gl,OU=AdminGroup,OU=YFInterior,DC=YFCO,DC=YANFENGCO,DC=COM")
+				;
+		List<Person> list = ldapTemplate.search(query, new PersonAttributesMapper());
+		list.forEach(p -> System.out.println(p.toString()));
+		return list.size()+list.get(0).toString();
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	public void ldapRestTestPart1() {
 		// 查询所有人员名称
